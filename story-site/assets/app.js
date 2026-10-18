@@ -141,12 +141,12 @@ const searchNotice=(text,failed=false)=>{
 };
 async function checkProvider(){
  try{
-  const response=await fetch(instagramAPI+"/health",{cache:"no-store",signal:AbortSignal.timeout(13000)});
+  const response=await fetch(instagramAPI+"/health",{cache:"no-store",signal:AbortSignal.timeout(35000)});
   if(!response.ok)throw new Error("offline");
   const data=await response.json();
-  if(data.providerConfigured) searchNotice("Busca conectada ao provedor. Consulte apenas perfis públicos do Instagram. Cada pesquisa pode consumir créditos da API.");
-  else searchNotice("Busca por @usuário pronta para conectar. A API ainda não tem uma chave configurada; por enquanto, utilize Arquivos salvos ou URL de mídia.",true);
- }catch{searchNotice("O servidor de busca ainda não está disponível. Use Arquivos salvos ou URL de mídia e tente novamente depois.",true)}
+  if(data.providerConfigured) searchNotice("Integração SaveAPI conectada. Consulte perfis públicos do Instagram; cada pesquisa pode consumir até 5 créditos.");
+  else searchNotice("Busca pronta, mas a chave SAVEAPI_KEY ainda não está configurada na Render. Crie uma conta em saveapi.org/en/signup/, adicione a chave no servidor StoryVista e aguarde a publicação.",true);
+ }catch{searchNotice("O servidor da consulta está iniciando ou indisponível. Tente novamente em alguns instantes. O serviço gratuito pode demorar para iniciar.",true)}
 }
 searchForm?.addEventListener("submit",async e=>{
  e.preventDefault();const username=profileName(searchInput.value);
@@ -155,7 +155,7 @@ searchForm?.addEventListener("submit",async e=>{
  searchButton.disabled=true;searchButton.textContent="Consultando...";
  searchNotice("Buscando stories públicos disponíveis. Aguarde...");
  try{
-  const r=await fetch(instagramAPI+"/api/stories",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,kind:"stories"}),signal:AbortSignal.timeout(24000)});
+  const r=await fetch(instagramAPI+"/api/stories",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,kind:"stories"}),signal:AbortSignal.timeout(55000)});
   const result=await r.json().catch(()=>({error:"O serviço retornou uma resposta inesperada."}));
   if(!r.ok||!result.ok){searchNotice(result.error||"Não foi possível consultar o perfil. Tente novamente mais tarde.",true);return}
   const found=(Array.isArray(result.items)?result.items:[]).filter(it=>it&&typeof it.url==="string"&&it.url.startsWith("https://"));
