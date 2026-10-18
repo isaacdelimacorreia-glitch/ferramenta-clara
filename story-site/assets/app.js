@@ -37,7 +37,7 @@ function addFiles(files){
  else if(added)say(added+" mídia(s) adicionada(s) sem envio para um servidor.");
 }
 const drop=q("#dropzone");
-drop.addEventListener("click",()=>fileInput.click());
+drop.addEventListener("click",e=>{if(e.target!==fileInput)fileInput.click()});
 drop.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();fileInput.click()}});
 fileInput.addEventListener("change",()=>{addFiles(fileInput.files);fileInput.value=""});
 for(const evt of ["dragenter","dragover"]){drop.addEventListener(evt,e=>{e.preventDefault();drop.classList.add("dragging")})}
@@ -91,12 +91,12 @@ function render(){
  pos.textContent=(index+1)+" de "+items.length;label.textContent=short(item.name,37);
  let media;
  if(item.type==="image"){
-  media=new Image();media.alt="Mídia "+(index+1)+": "+item.name;
+  media=new Image();media.referrerPolicy="no-referrer";media.alt="Mídia "+(index+1)+": "+item.name;
   media.addEventListener("load",()=>{ready=true;raf=requestAnimationFrame(tick)},{once:true});
   media.addEventListener("error",()=>failed("Não foi possível abrir esta imagem. O servidor externo pode bloquear o acesso."),{once:true});
   stage.append(media);media.src=item.src;
  }else{
-  media=document.createElement("video");media.controls=true;media.autoplay=true;media.playsInline=true;media.preload="metadata";
+  media=document.createElement("video");media.controls=true;media.referrerPolicy="no-referrer";media.autoplay=true;media.playsInline=true;media.preload="metadata";
   media.setAttribute("aria-label","Vídeo: "+item.name);
   media.addEventListener("ended",finish);
   media.addEventListener("error",()=>failed("Não foi possível carregar este vídeo. Verifique o formato e as permissões do servidor."));
