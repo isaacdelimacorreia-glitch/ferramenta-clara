@@ -124,5 +124,65 @@ document.addEventListener("visibilitychange",()=>{
  else{started=0;raf=requestAnimationFrame(tick)}
 });
 window.addEventListener("pagehide",()=>items.forEach(dispose));
+
+const instagramAPI="https://storyvista-api.onrender.com";
+const searchForm=q("#ig-form"), searchInput=q("#ig-username"),searchButton=q("#ig-search"),searchStatus=q("#ig-status"),searchResults=q("#ig-results");
+const profileName=value=>{
+ let v=value.trim().replace(/^@/,"");
+ if(/^https?:\/\//i.test(v)){
+  try{const url=new URL(v);if(!["instagram.com","www.instagram.com","m.instagram.com"].includes(url.hostname.toLowerCase()))return null;const chunks=url.pathname.split("/").filter(Boolean);if(chunks.length!==1)return null;v=chunks[0]}catch{return null}
+ }
+ return /^[A-Za-z0-9._]{1,30}$/.test(v)?v.toLowerCase():null;
+};
+const searchNotice=(text,failed=false)=>{
+ searchStatus.textContent=text;
+ searchStatus.classList.toggle("warning",failed);
+ searchStatus.classList.toggle("light",!failed);
+};
+async function checkProvider(){
+ try{
+  const response=await fetch(instagramAPI+"/health",{cache:"no-store",signal:AbortSignal.timeout(13000)});
+  if(!response.ok)throw new Error("offline");
+  const data=await response.json();
+  if(data.providerConfigured) searchNotice("Busca conectada ao provedor. Consulte apenas perfis públicos do Instagram. Cada pesquisa pode consumir créditos da API.");
+  else searchNotice("Busca por @usuário pronta para conectar. A API ainda não tem uma chave configurada; por enquanto, utilize Arquivos salvos ou URL de mídia.",true);
+ }catch{searchNotice("O servidor de busca ainda não está disponível. Use Arquivos salvos ou URL de mídia e tente novamente depois.",true)}
+}
+searchForm?.addEventListener("submit",async e=>{
+ e.preventDefault();const username=profileName(searchInput.value);
+ searchResults.replaceChildren();
+ if(!username){searchNotice("Informe um @usuário ou link de perfil válido do Instagram.",true);return}
+ searchButton.disabled=true;searchButton.textContent="Consultando...";
+ searchNotice("Buscando stories públicos disponíveis. Aguarde...");
+ try{
+  const r=await fetch(instagramAPI+"/api/stories",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,kind:"stories"}),signal:AbortSignal.timeout(24000)});
+  const result=await r.json().catch(()=>({error:"O serviço retornou uma resposta inesperada."}));
+  if(!r.ok||!result.ok){searchNotice(result.error||"Não foi possível consultar o perfil. Tente novamente mais tarde.",true);return}
+  const found=(Array.isArray(result.items)?result.items:[]).filter(it=>it&&typeof it.url==="string"&&it.url.startsWith("https://"));
+  if(!found.length){searchNotice("Nenhum story público disponível foi retornado para @"+username+". Isso não significa necessariamente que a conta não tenha stories.");return}
+  searchNotice(found.length+" mídia(s) pública(s) encontrada(s) para @"+username+". Toque para adicionar ao visualizador.");
+  found.forEach((it,j)=>{
+   const card=document.createElement("div");card.className="media-chip";
+   const icon=document.createElement("b");icon.textContent=it.type==="video"?"▶":"▣";
+   const lbl=document.createElement("span");lbl.textContent="Story "+(j+1);
+   const add=document.createElement("button");add.type="button";add.textContent="+";add.setAttribute("aria-label","Adicionar story "+(j+1)+" ao visualizador");
+   add.addEventListener("click",()=>{
+    if(items.length>=MAX_ITEMS){say("Limite de 24 mídias atingido.",true);return}
+    items.push({type:it.type==="video"?"video":"image",name:"@"+username+" · story "+(j+1),src:it.url,local:false});
+    update();say("Story adicionado. Clique em Assistir stories para abrir.");
+    add.disabled=true;add.textContent="✓";
+   });
+   card.append(icon,lbl,add);searchResults.append(card)
+  });
+  if(items.length+found.length<=MAX_ITEMS){
+    const all=document.createElement("button");all.type="button";all.className="btn btn-primary";all.textContent="Adicionar todos os stories";
+    all.addEventListener("click",()=>{let count=0;for(const [j,it] of found.entries()){if(items.length>=MAX_ITEMS)break;const name="@"+username+" · story "+(j+1);if(items.some(x=>x.name===name&&x.src===it.url))continue;items.push({type:it.type==="video"?"video":"image",name,src:it.url,local:false});count++}update();say(count+" stories adicionados.");all.disabled=true});
+    searchResults.append(all)
+  }
+ }catch(err){searchNotice(err.name==="TimeoutError"?"Tempo de consulta excedido. Tente novamente.":"Falha na consulta. Verifique a conexão e tente novamente.",true)}
+ finally{searchButton.disabled=false;searchButton.textContent="Buscar stories →"}
+});
+checkProvider();
+
 update();
 })();
