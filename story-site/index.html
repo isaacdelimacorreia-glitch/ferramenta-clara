@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101527">
+<meta name="description" content="StoryVista: reproduza fotos e vídeos de stories que você tem permissão para acessar. Sem login, sem upload de arquivos ao servidor. Entenda os limites da privacidade nas redes sociais.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="StoryVista — Visualizador privado de mídias">
+<meta property="og:description" content="Abra arquivos e URLs diretas de mídia de stories, sem criar uma conta.">
+<meta property="og:url" content="https://storyvista.onrender.com/">
+<link rel="canonical" href="https://storyvista.onrender.com/">
+<title>StoryVista — Visualizador privado de stories em fotos e vídeos</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#principal">Ir para o conteúdo</a>
+<header class="header"><div class="container nav">
+<a class="brand" href="/" aria-label="StoryVista página inicial"><span class="brand-symbol">S<span class="spark">✦</span></span><span>story<span class="brand-accent">vista</span></span></a>
+<nav class="nav-links" aria-label="Menu principal"><a href="#como-funciona">Como funciona</a><a href="#perguntas">Dúvidas</a><a href="/privacidade/">Privacidade</a></nav>
+<span class="header-tag"><span class="status-dot"></span> Sem cadastro</span>
+</div></header>
+<main id="principal">
+<section class="hero"><div class="container hero-grid">
+<div class="hero-copy">
+<div class="eyebrow"><span class="eyebrow-icon">✦</span> REPRODUTOR DE MÍDIA • SEM LOGIN</div>
+<h1>Seus stories,<br><span class="gradient-text">em uma experiência</span><br>mais privada.</h1>
+<p>Reproduza fotos e vídeos salvos ou mídias disponíveis por link direto, em um visualizador de stories bonito, rápido e sem conectar sua conta do Instagram ou Facebook.</p>
+<div class="hero-buttons"><a class="btn btn-primary" href="#visualizador">Começar agora <span aria-hidden="true">↗</span></a><a class="btn btn-subtle" href="#como-funciona">Entenda os limites <span aria-hidden="true">→</span></a></div>
+<div class="hero-trust"><span>✓ Arquivos ficam no seu dispositivo</span><span>✓ Sem senha nem login</span><span>✓ Gratuito</span></div>
+</div>
+<div class="hero-art" aria-hidden="true">
+<div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+<div class="art-label one">MODO PRIVADO <span>●</span></div><div class="art-label two"><span>✦</span> NAVEGUE NO SEU RITMO</div>
+<div class="mock-phone"><div class="mock-top"><span>storyvista</span><span>•••</span></div><div class="mock-progress"><i></i><i></i><i></i></div><div class="mock-image"><div class="floating-orb"></div><div class="mock-sun"></div><div class="mock-mountain first"></div><div class="mock-mountain second"></div><div class="mock-caption">Uma nova forma<br>de assistir.</div></div><div class="mock-bottom"><span>◁</span><span>▶</span><span>▷</span></div></div>
+</div>
+</div></section>
+<section class="widget-section" id="visualizador"><div class="container">
+<div class="section-heading"><span class="overline">FERRAMENTA GRATUITA</span><h2>Seu visualizador, do seu jeito.</h2><p>Escolha de onde vem o conteúdo. Nada é enviado ao nosso servidor.</p></div>
+<div class="workspace">
+<div class="workspace-heading"><div><span class="workspace-icon">✦</span><strong>Espaço de reprodução</strong><span class="workspace-sub">Até 24 mídias por sessão</span></div><span class="secure-label">⌁ Processamento local</span></div>
+<div class="mode-tabs" role="tablist" aria-label="Fonte do conteúdo">
+<button class="mode-tab active" role="tab" aria-selected="true" data-tab="arquivo" id="tab-arquivo">↥ <span>Arquivos salvos</span></button>
+<button class="mode-tab" role="tab" aria-selected="false" data-tab="link" id="tab-link">⌁ <span>URL de mídia</span></button>
+<button class="mode-tab" role="tab" aria-selected="false" data-tab="story" id="tab-story">◎ <span>Link de story</span></button>
+</div>
+<div class="panel" id="panel-arquivo" role="tabpanel" aria-labelledby="tab-arquivo">
+<div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Selecionar mídias do dispositivo">
+<div class="upload-icon">⇧</div><strong>Arraste suas fotos e vídeos para cá</strong><p>ou <span class="inline-link">escolha arquivos do dispositivo</span></p><small>JPG, PNG, WEBP, GIF, MP4, WEBM • até 150 MB por arquivo</small>
+<input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" multiple hidden>
+</div>
+<p class="helper">Ideal para conteúdos seus ou mídias que você recebeu e tem autorização para reproduzir.</p>
+</div>
+<div class="panel hidden" id="panel-link" role="tabpanel" aria-labelledby="tab-link">
+<label class="input-label" for="media-url">Link HTTPS direto para um arquivo de imagem ou vídeo</label>
+<div class="input-row"><input id="media-url" inputmode="url" autocomplete="url" placeholder="https://exemplo.com/story.mp4"><button id="add-url" class="btn btn-primary" type="button">Adicionar →</button></div>
+<div class="field-row"><label for="media-kind">Tipo de mídia</label><select id="media-kind"><option value="auto">Detectar automaticamente</option><option value="image">Imagem</option><option value="video">Vídeo</option></select></div>
+<div class="notice light"><strong>Observação:</strong> o link precisa apontar diretamente para uma mídia pública. O navegador acessa o servidor externo, que pode receber seu endereço IP. Links comuns de stories não funcionam aqui.</div>
+</div>
+<div class="panel hidden" id="panel-story" role="tabpanel" aria-labelledby="tab-story">
+<div class="platforms"><span class="platform-bubble">◎</span><span class="platform-bubble">f</span><div><strong>Instagram e Facebook</strong><p>Links comuns de stories não fornecem o arquivo de mídia diretamente.</p></div></div>
+<div class="notice warning"><strong>Não há acesso anônimo garantido por link de perfil.</strong> As redes podem exigir login e registrar visualizações. Por isso, esta ferramenta não consulta stories de outras contas, não contorna perfis privados e não pede senhas. Ao abrir um story dentro da rede social, sua visita poderá aparecer para o autor.</div>
+<p class="helper">Use a opção <strong>Arquivos salvos</strong> para mídias já disponíveis ou <strong>URL de mídia</strong> quando tiver um link direto acessível.</p>
+</div>
+<div class="workspace-bottom"><div class="workspace-status"><span class="status-dot"></span> <span id="item-count" aria-live="polite">Nenhuma mídia adicionada</span></div><div class="workspace-actions"><button id="clear-items" class="text-btn" type="button" disabled>Limpar</button><button id="open-viewer" class="btn btn-primary" type="button" disabled>Assistir stories <span>→</span></button></div></div>
+<div id="message" class="message hidden" role="status" aria-live="polite"></div>
+<div id="media-list" class="media-list" aria-label="Itens adicionados"></div>
+</div>
+</div></section>
+<section class="features" id="como-funciona"><div class="container">
+<div class="section-heading left"><span class="overline">SIMPLES E TRANSPARENTE</span><h2>Privacidade sem promessas impossíveis.</h2><p>Uma experiência independente, sem depender da senha de sua rede social.</p></div>
+<div class="feature-grid"><article class="feature-card"><div class="feature-icon violet">◈</div><h3>Sem conta conectada</h3><p>Não pedimos usuário ou senha do Instagram ou Facebook. Você escolhe os arquivos ou links diretos que vai reproduzir.</p></article>
+<article class="feature-card"><div class="feature-icon turquoise">⊞</div><h3>Arquivos no dispositivo</h3><p>Fotos e vídeos locais são abertos no próprio navegador. Não há envio de arquivos para nossos servidores.</p></article>
+<article class="feature-card"><div class="feature-icon amber">◌</div><h3>Visualização fluida</h3><p>Progresso visual, avanço automático de imagens, vídeos, reprodução sequencial e navegação com teclado.</p></article>
+</div></div></section>
+<section class="faq" id="perguntas"><div class="container"><div class="section-heading"><span class="overline">PERGUNTAS FREQUENTES</span><h2>O que é possível e o que não é.</h2></div><div class="faq-list">
+<details><summary>Posso ver qualquer story do Instagram sem que a pessoa saiba?</summary><p>Não. A ferramenta não busca stories por nome de usuário e não consegue impedir que Instagram ou Facebook registrem uma visualização feita nas próprias plataformas. Só reproduz arquivos que você já possui ou URLs diretas acessíveis.</p></details>
+<details><summary>Funciona com perfil privado?</summary><p>Não. Não acessamos perfis privados, conteúdo restrito, login de terceiros ou mídias que você não tem autorização para acessar.</p></details>
+<details><summary>Os arquivos que eu selecionar são enviados ao site?</summary><p>Não. Arquivos selecionados do dispositivo são reproduzidos localmente. Já links remotos exigem uma conexão com o servidor que hospeda a mídia, que pode registrar sua conexão.</p></details>
+<details><summary>Por que meu link do Instagram ou Facebook não abre?</summary><p>Porque um URL de story não é um URL direto de imagem ou vídeo. As redes sociais controlam a sessão, a privacidade e o acesso aos stories.</p></details>
+<details><summary>Essa ferramenta pertence à Meta?</summary><p>Não. StoryVista é independente, sem vínculo, endosso ou integração oficial com Instagram, Facebook ou Meta.</p></details>
+</div></div></section>
+<section class="closing"><div class="container closing-inner"><div><span class="overline">PRONTO PARA TESTAR?</span><h2>Abra seus conteúdos<br>com tranquilidade.</h2><p>Sem cadastro, sem instalação e sem precisar fornecer suas senhas.</p></div><a class="btn btn-white" href="#visualizador">Abrir visualizador ↗</a></div></section>
+</main>
+<footer><div class="container footer-top"><a class="brand" href="/"><span class="brand-symbol">S<span class="spark">✦</span></span><span>story<span class="brand-accent">vista</span></span></a><nav aria-label="Links institucionais"><a href="/sobre/">Sobre</a><a href="/privacidade/">Privacidade</a><a href="/termos/">Termos</a><a href="https://github.com/isaacdelimacorreia-glitch/ferramenta-clara/issues" target="_blank" rel="noopener noreferrer">Contato</a></nav></div><div class="container footer-bottom">© 2026 StoryVista. Projeto independente, não afiliado à Meta, Instagram ou Facebook.</div></footer>
+<dialog id="player" aria-label="Visualizador de mídias"><div class="player-shell"><div class="story-bars" id="story-bars"></div><div class="player-header"><span class="player-avatar">S</span><div><strong>storyvista</strong><span id="player-label">Seu conteúdo</span></div><button id="close-player" aria-label="Fechar visualizador">×</button></div><div class="player-stage" id="player-stage"><div id="player-content"></div><button class="tapzone previous" id="previous" aria-label="Anterior"></button><button class="tapzone next" id="next" aria-label="Próximo"></button></div><div class="player-footer"><button id="player-back" aria-label="Voltar">←</button><span id="player-position">1 de 1</span><button id="player-next" aria-label="Avançar">→</button></div></div></dialog>
+<script src="/assets/app.js" defer></script>
+</body></html>
