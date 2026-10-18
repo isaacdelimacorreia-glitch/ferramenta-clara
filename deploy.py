@@ -82,7 +82,7 @@ if verification:
         if page.name == "404.html":
             continue
         markup = page.read_text(encoding="utf-8")
-        markup = markup.replace("<!-- ADSENSE_CODE_INSERTION_POINT -->", verification_tag + "\\n<!-- ADSENSE_CODE_INSERTION_POINT -->")
+        markup = markup.replace("<!-- ADSENSE_CODE_INSERTION_POINT -->", verification_tag + "<!-- ADSENSE_CODE_INSERTION_POINT -->")
         page.write_text(markup, encoding="utf-8")
 
 publisher = os.getenv("ADSENSE_ID", "").strip()
