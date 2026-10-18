@@ -47,7 +47,7 @@ contact_html = contact_html.replace(
 )
 contact_email = os.getenv("CONTACT_EMAIL", "").strip()
 if contact_email:
-    if not re.fullmatch(r"[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+", contact_email):
+    if not re.fullmatch("[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+", contact_email):
         raise SystemExit("Invalid CONTACT_EMAIL")
     safe_email = html.escape(contact_email, quote=True)
     contact_html = contact_html.replace("<!-- CONTACT_EMAIL_INSERTION_POINT -->", f'<p>Para contato reservado e assuntos de privacidade: <a href="mailto:{safe_email}">{safe_email}</a>.</p>')
@@ -72,6 +72,19 @@ if site_url:
     from xml.sax.saxutils import escape
     (site/"sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+ "".join("<url><loc>"+escape(site_url+path)+"</loc></url>\n" for path in routes)+"</urlset>\n", encoding="utf-8")
     (site/"robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {site_url}/sitemap.xml\n",encoding="utf-8")
+# Optional Google Search Console verification meta tag.
+verification = os.getenv("GOOGLE_SITE_VERIFICATION", "").strip()
+if verification:
+    if not re.fullmatch(r"[A-Za-z0-9_-]{16,200}", verification):
+        raise SystemExit("Invalid GOOGLE_SITE_VERIFICATION token")
+    verification_tag = f'<meta name="google-site-verification" content="{verification}">'
+    for page in site.rglob("*.html"):
+        if page.name == "404.html":
+            continue
+        markup = page.read_text(encoding="utf-8")
+        markup = markup.replace("<!-- ADSENSE_CODE_INSERTION_POINT -->", verification_tag + "\\n<!-- ADSENSE_CODE_INSERTION_POINT -->")
+        page.write_text(markup, encoding="utf-8")
+
 publisher = os.getenv("ADSENSE_ID", "").strip()
 if publisher:
     if not re.fullmatch(r"(?:ca-)?pub-\d{16}", publisher):
