@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://storyvista.onrender.com/sitemap.xml
+Sitemap: https://storyvista-r8ex.onrender.com/sitemap.xml
