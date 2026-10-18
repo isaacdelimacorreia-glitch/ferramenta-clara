@@ -1,5 +1,5 @@
 /* StoryVista API proxy: Instagram public stories only.
- * Requires SCRAPERAPI_TOKEN from https://scraperapi.to.
+ * Requires INSCRAPE_KEY from https://inscrape.dev/docs/instagram/stories/.
  * No Instagram credentials, cookies, user accounts, or private content.
  * All outgoing upstream URLs are hardcoded (no open proxy / SSRF).
  */
@@ -10,12 +10,12 @@ const path = require("node:path");
 const { URL } = require("node:url");
 
 const PORT = Number(process.env.PORT || 10000);
-const PROVIDER = "https://scraperapi.to/scrape/instagram-scraper/";
+const PROVIDER = "https://api.inscrape.dev/v1/instagram/stories";
 const ALLOWED = new Set(["https://storyvista-r8ex.onrender.com", "http://localhost:8080"]);
 const MIME = { ".html":"text/html; charset=utf-8", ".css":"text/css; charset=utf-8", ".js":"text/javascript; charset=utf-8", ".svg":"image/svg+xml", ".xml":"application/xml; charset=utf-8", ".txt":"text/plain; charset=utf-8" };
 const calls = new Map();
 let windowStart = Date.now(), totalCalls = 0;
-const MONTHLY_LIMIT = Math.min(Math.max(Number(process.env.MONTHLY_API_LIMIT || 150), 10), 900);
+const MONTHLY_LIMIT = Math.min(Math.max(Number(process.env.MONTHLY_API_LIMIT || 80), 5), 900);
 const MAX_REQUESTS_PER_IP_HOUR = 8;
 const CACHE_TTL = 2 * 60 * 1000;
 const cache = new Map();
@@ -40,9 +40,9 @@ function validateUser(text){
  return /^[a-zA-Z0-9._]{1,30}$/.test(text)?text.toLowerCase():null;
 }
 function mediaCandidate(obj){
- const medium = [obj.mediaUrl,obj.media_url,obj.display_url,obj.displayUrl,obj.videoUrl,obj.video_url,obj.imageUrl,obj.image_url,obj.url,obj.src,obj.thumbnailUrl,obj.thumbnail_url,obj.image?.url,obj.video?.url,obj.media?.url,obj.media?.src,obj.video_versions?.[0]?.url,obj.image_versions2?.candidates?.[0]?.url,obj.taken_at?.url].find(v=>safeURL(v));
+ const medium = [obj.videoUrl,obj.video_url,obj.mediaUrl,obj.media_url,obj.imageUrl,obj.image_url,obj.display_url,obj.displayUrl,obj.url,obj.src,obj.thumbnailUrl,obj.thumbnail_url,obj.image?.url,obj.video?.url,obj.media?.url,obj.media?.src,obj.video_versions?.[0]?.url,obj.image_versions2?.candidates?.[0]?.url].find(v=>safeURL(v));
  const url=safeURL(medium);if(!url)return null;
- const video = /video|mp4/i.test(String(obj.mediaType||obj.media_type||obj.type||"")) || Boolean(obj.videoUrl||obj.video_url||obj.video_versions);
+ const video = obj.mediaType===2 || obj.media_type===2 || /video|mp4/i.test(String(obj.mediaType||obj.media_type||obj.type||"")) || Boolean(obj.videoUrl||obj.video_url||obj.video_versions);
  return {url,type:video?"video":"image",poster:safeURL(obj.thumbnailUrl||obj.thumbnail_url||obj.preview_url||obj.image?.url)||null,caption:typeof obj.caption==="string"?obj.caption.slice(0,280):"",timestamp:typeof obj.takenAt==="string"?obj.takenAt:typeof obj.taken_at==="string"?obj.taken_at:null};
 }
 function normalize(obj,username,kind){
@@ -52,9 +52,9 @@ function normalize(obj,username,kind){
  return {ok:true,username,kind,count:out.length,items:out,notice:out.length?"Conteúdo público encontrado pelo provedor externo. A disponibilidade pode mudar.":"Não foram retornadas mídias públicas para este perfil. O perfil pode estar sem stories ou com acesso limitado."};
 }
 async function proxy(req,res,body){
- const name=validateUser(body?.username),kind=body?.kind==="highlights"?"highlights":"stories";
+ const name=validateUser(body?.username),kind="stories";
  if(!name)return send(res,400,{ok:false,error:"Informe um @usuário público válido ou link de perfil do Instagram."});
- const token=(process.env.SCRAPERAPI_TOKEN||"").trim();
+ const token=(process.env.INSCRAPE_KEY||"").trim();
  if(!token)return send(res,503,{ok:false,code:"PROVIDER_UNCONFIGURED",error:"A consulta por @usuário ainda precisa da chave da API no servidor. O layout está pronto, mas o serviço de busca não foi ativado."});
  cleanup();
  const now=Date.now(),bucket=calls.get(req.socket.remoteAddress)||{from:now,count:0};
@@ -68,8 +68,9 @@ async function proxy(req,res,body){
  calls.set(req.socket.remoteAddress,{from:bucket.from,count:bucket.count+1});totalCalls++;
  const controller=new AbortController(),id=setTimeout(()=>controller.abort(),18000);
  try{
-  const upstream=await fetch(PROVIDER+kind,{method:"POST",headers:{"authorization":"Bearer "+token,"content-type":"application/json","accept":"application/json"},body:JSON.stringify({username:name}),redirect:"error",signal:controller.signal});
+  const upstream=await fetch(PROVIDER+"?handle="+encodeURIComponent(name),{method:"GET",headers:{"x-api-key":token,"accept":"application/json"},redirect:"error",signal:controller.signal});
   if(upstream.status===401||upstream.status===403)return send(res,502,{ok:false,error:"A chave da API não foi autorizada. Verifique sua conta no provedor."});
+  if(upstream.status===402)return send(res,402,{ok:false,error:"A conta da API ficou sem créditos ou atingiu o limite configurado."});
   if(upstream.status===429)return send(res,429,{ok:false,error:"O serviço externo atingiu o limite de consultas. Tente novamente mais tarde."});
   if(!upstream.ok)return send(res,502,{ok:false,error:"O serviço de stories está indisponível no momento ("+upstream.status+")."});
   const contentType=upstream.headers.get("content-type")||"";
@@ -89,7 +90,7 @@ http.createServer((req,res)=>{
  if(!cors(req,res))return send(res,403,{ok:false,error:"Origem não autorizada."});
  if(req.method==="OPTIONS"){res.writeHead(204);return res.end()}
  const url=new URL(req.url,"http://localhost");
- if(url.pathname==="/health")return send(res,200,{ok:true,providerConfigured:!!process.env.SCRAPERAPI_TOKEN,site:"StoryVista"});
+ if(url.pathname==="/health")return send(res,200,{ok:true,providerConfigured:!!process.env.INSCRAPE_KEY,site:"StoryVista"});
  if(url.pathname==="/api/stories"){
   if(req.method!=="POST")return send(res,405,{ok:false,error:"Use POST."});
   let buff="";req.on("data",chunk=>{buff+=chunk;if(buff.length>3072)req.destroy()});
