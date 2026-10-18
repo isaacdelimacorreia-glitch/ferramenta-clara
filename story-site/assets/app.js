@@ -57,7 +57,7 @@ q("#add-url").addEventListener("click",()=>{
  if(host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com")||host==="fb.watch"||host==="m.facebook.com"){say("Este é um link de página ou story da rede social, não o arquivo de mídia. Para assistir aqui é necessário um link HTTPS direto para uma imagem ou vídeo.",true);return}
  let type=q("#media-kind").value;
  if(type==="auto"){
-   const path=decodeURIComponent(url.pathname).toLowerCase();
+   const path=url.pathname.toLowerCase();
    if(/\.(mp4|webm|mov|m4v)$/.test(path))type="video";
    else if(/\.(png|jpg|jpeg|gif|webp|avif)$/.test(path))type="image";
    else {say("Não foi possível identificar o tipo de arquivo. Escolha Imagem ou Vídeo no seletor.",true);return}
