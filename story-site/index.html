@@ -63,9 +63,9 @@
   <label class="input-label" for="ig-username">Nome de usuário do Instagram</label>
   <div class="input-row"><input id="ig-username" name="username" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="@usuario ou instagram.com/usuario" maxlength="120" required><button class="btn btn-primary" id="ig-search" type="submit">Buscar stories →</button></div>
 </form>
-<div id="ig-status" class="notice light" role="status" aria-live="polite">A busca consulta apenas stories ativos de perfis públicos. Para funcionar, é preciso ativar a API no servidor. Não pedimos senha do Instagram.</div>
+<div id="ig-status" class="notice light" role="status" aria-live="polite">Busque os stories públicos ativos. A integração utiliza SaveAPI e só retornará resultados depois que a chave for adicionada ao servidor. Não pedimos sua senha do Instagram.</div>
 <div id="ig-results" class="media-list" aria-label="Stories encontrados"></div>
-<p class="helper">A consulta usa um provedor independente, não afiliado ao Instagram. Não há acesso a perfis privados nem garantia de anonimato perante serviços externos.</p>
+<p class="helper">A consulta usa a SaveAPI, um provedor independente. Somente perfis públicos; não há garantia absoluta de anonimato perante serviços externos. Crie sua chave na <a href="https://saveapi.org/en/signup/" rel="noopener noreferrer" target="_blank">página oficial da SaveAPI</a> e configure-a na Render.</p>
 </div>
 <div class="workspace-bottom"><div class="workspace-status"><span class="status-dot"></span> <span id="item-count" aria-live="polite">Nenhuma mídia adicionada</span></div><div class="workspace-actions"><button id="clear-items" class="text-btn" type="button" disabled>Limpar</button><button id="open-viewer" class="btn btn-primary" type="button" disabled>Assistir stories <span>→</span></button></div></div>
 <div id="message" class="message hidden" role="status" aria-live="polite"></div>
