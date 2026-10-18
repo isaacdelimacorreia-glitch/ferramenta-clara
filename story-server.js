@@ -11,6 +11,18 @@ const { URL } = require("node:url");
 
 const PORT = Number(process.env.PORT || 10000);
 const PROVIDER = "https://api.saveapi.org/v1/instagram";
+let providerAuthStatus="unchecked";
+async function verifyProviderKey(){
+ const token=(process.env.SAVEAPI_KEY||"").trim();
+ if(!token){providerAuthStatus="missing";console.info("SaveAPI key: not configured");return}
+ const ctl=new AbortController();const timeout=setTimeout(()=>ctl.abort(),12000);
+ try{
+  const result=await fetch("https://api.saveapi.org/v1/me",{headers:{"Authorization":"Bearer "+token,"accept":"application/json"},signal:ctl.signal,redirect:"error"});
+  providerAuthStatus=result.ok?"valid":result.status===401||result.status===403?"rejected":"unverified";
+  console.info("SaveAPI authentication check:",providerAuthStatus,"HTTP",result.status);
+ }catch(e){providerAuthStatus="unverified";console.warn("SaveAPI authentication check could not complete (network/timeout).")}
+ finally{clearTimeout(timeout)}
+}
 const ALLOWED = new Set(["https://storyvista-r8ex.onrender.com", "http://localhost:8080"]);
 const MIME = { ".html":"text/html; charset=utf-8", ".css":"text/css; charset=utf-8", ".js":"text/javascript; charset=utf-8", ".svg":"image/svg+xml", ".xml":"application/xml; charset=utf-8", ".txt":"text/plain; charset=utf-8" };
 const calls = new Map();
@@ -105,7 +117,7 @@ http.createServer((req,res)=>{
  if(!cors(req,res))return send(res,403,{ok:false,error:"Origem não autorizada."});
  if(req.method==="OPTIONS"){res.writeHead(204);return res.end()}
  const url=new URL(req.url,"http://localhost");
- if(url.pathname==="/health")return send(res,200,{ok:true,providerConfigured:!!process.env.SAVEAPI_KEY,provider:"saveapi",site:"StoryVista"});
+ if(url.pathname==="/health")return send(res,200,{ok:true,providerConfigured:!!process.env.SAVEAPI_KEY,providerVerified:providerAuthStatus==="valid",providerStatus:providerAuthStatus,provider:"saveapi",site:"StoryVista"});
  if(url.pathname==="/api/stories"){
   if(req.method!=="POST")return send(res,405,{ok:false,error:"Use POST."});
   let buff="";req.on("data",chunk=>{buff+=chunk;if(buff.length>3072)req.destroy()});
@@ -125,4 +137,4 @@ http.createServer((req,res)=>{
   if(req.method==="HEAD")return res.end();
   fs.createReadStream(file).pipe(res);
  }catch{send(res,404,{ok:false,error:"Página não encontrada."})}
-}).listen(PORT,"0.0.0.0",()=>console.log("StoryVista API listening on "+PORT));
+}).listen(PORT,"0.0.0.0",()=>{console.log("StoryVista API listening on "+PORT);void verifyProviderKey()});
