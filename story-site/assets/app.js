@@ -54,7 +54,7 @@ q("#add-url").addEventListener("click",()=>{
  try{url=new URL(q("#media-url").value.trim())}catch{say("Informe um link HTTPS direto para imagem ou vídeo.",true);return}
  if(url.protocol!=="https:"||!url.hostname||url.username||url.password||url.href.length>3000){say("Utilize uma URL HTTPS válida, sem usuário ou senha.",true);return}
  const host=url.hostname.toLowerCase();
- if(host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com")||host==="fb.watch"||host==="m.facebook.com"){say("Este é um link de página ou story da rede social, não o arquivo de mídia. Para assistir aqui é necessário um link HTTPS direto para uma imagem ou vídeo.",true);return}
+ if(host==="instagram.com"||host.endsWith(".instagram.com")){say("Este é um link de página ou story da rede social, não o arquivo de mídia. Para assistir aqui é necessário um link HTTPS direto para uma imagem ou vídeo.",true);return}
  let type=q("#media-kind").value;
  if(type==="auto"){
    const path=url.pathname.toLowerCase();
